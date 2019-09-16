@@ -1,0 +1,79 @@
+<input name = "user_name" value = "<%= user_logged.getUserName() %>" type = "hidden">
+
+
+<h4 class="ui dividing header">Product Information</h4>
+						<div class="field">
+							<label><%=bookOrdered.getTitle() %> by <%= bookOrdered.getAuthor() %></label>
+							<input type="image"
+								src="bookImages/<%= bookOrdered.getIsbn()%>.jpg" width="100px">
+							<label>Unit Price: $<%= bookOrdered.getUnitPrice()%></label> <label>In
+								Stock: <%= bookOrdered.getQuantity()%></label>
+						</div>
+						<div class="two fields">
+							<div class="field">
+								<label>Quantity*</label> <input type="number"
+									name="quantityOrdered" placeholder="Quantity Ordered"
+									onkeyup="updatePrice()" value="${quantityEntered }">
+							</div>
+							<div class="field">
+								<label>Total Price</label> <input type="text" name="totalPrice"
+									placeholder="Total Price" disabled>
+							</div>
+						</div>
+						
+<input name="book_id" value="<%= bookOrdered.getId() %>"
+							type="hidden">
+							
+<script type="text/javascript">
+		function updatePrice() {
+			var quantity_str = document.getElementsByName("quantityOrdered")[0].value;
+			if (quantity_str != "") {
+				var quantity = parseInt(quantity_str);
+				var price =
+	<%=bookOrdered.getUnitPrice()%>
+		* quantity;
+				document.getElementsByName("totalPrice")[0].value = "$" + price;
+			} else {
+				document.getElementsByName("totalPrice")[0].value = "";
+			}
+		}
+	</script>
+	<script type="text/javascript">
+		function callBack() {
+			if (confirm("Do you really want to cancel this order?")) {
+				window.history.back();
+	<%bookOrdered = null;
+			userLogged = null;%>
+		}
+		}
+	</script>
+	
+
+
+if(quantityBought<=0) {
+				System.out.println("Hello");
+				request.setAttribute("bookSelected", bookOrdered);
+				request.setAttribute("userLogged", userlogged);
+				request.setAttribute("quantityEntered", quantityBought);
+				request.setAttribute("errorMessage", "Quantity can only be a positive integer greater than 0");
+				request.getRequestDispatcher("/cart.jsp").forward(request, response);
+			}else if(quantityBought>bookOrdered.getQuantity()) {
+				System.out.println("Hello");
+				request.setAttribute("bookSelected", bookOrdered);
+				request.setAttribute("userLogged", userlogged);
+				request.setAttribute("quantityEntered", quantityBought);
+				request.setAttribute("errorMessage", "Quantity cannot be greater than what is in stock");
+				request.getRequestDispatcher("/cart.jsp").forward(request, response);
+			}else {
+				Timestamp dateTime = new Timestamp(System.currentTimeMillis());
+				Date deliveryDate = incrementDate();
+				Order order = new Order(dateTime, userlogged, bookOrdered, quantityBought, deliveryDate);
+				DBManager.registerOrder(order);
+				Email.sendEmail(order);
+				request.setAttribute("quantityB", quantityBought);
+				request.setAttribute("userLogged_", userlogged);
+				request.setAttribute("bookBought_", bookOrdered);
+				request.setAttribute("deliveryDate_", deliveryDate);
+				request.getRequestDispatcher("/confirmationPage.jsp").forward(request, response);
+			}
+	
